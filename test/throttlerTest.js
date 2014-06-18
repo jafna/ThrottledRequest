@@ -1,6 +1,7 @@
 "use strict";
 var Throttler = require('../throttler.js');
 var assert = require('assert');
+var Q = require("q");
 //Limits for tests set to 3 calls in 3 seconds (to keep tests at reasonable speeds)
 var Th, testCallLimit = 3, testCallTime = 3000, timeStamp, callCounter;
 
@@ -60,13 +61,30 @@ describe('Throttler', function () {
       Th.throttle().then(genericCall).then(
         function(){
         var now = new Date().getTime();
-        console.log( (timeStamp + testCallTime * 2) + " ja " + now);
         assert((timeStamp + testCallTime * 2) < now, 'It was too quick to make ' + (testCallLimit * 3) + ' calls');
         assert((timeStamp + testCallTime * 3) > now, 'It was too slow to make ' + (testCallLimit * 3) + ' calls');
         assert(callCounter == testCallLimit * 3);
         done();
       }).fail(done);
-
     });
+
+    it('last callTime calls should not affect next callTime limits', function (done) {
+      this.timeout(3 * testCallTime);
+      Th.throttle().then(genericCall);
+      //call throttler when callTime has passed!
+      Q.delay(testCallTime+20).then(function(){
+        for(var i = 0; i < testCallLimit-1; i++){
+          Th.throttle().then(genericCall);
+        }
+        Th.throttle().then(genericCall).then(function(){
+          var now = new Date().getTime();
+          assert((timeStamp + testCallTime) < now, 'It was too quick to make ' + (testCallLimit + 1) + ' calls');
+          assert((timeStamp + testCallTime * 3) > now, 'It was too slow to make ' + (testCallLimit + 1) + ' calls');
+          assert(callCounter == testCallLimit);
+          done();
+        }).fail(done);
+      });
+    });
+
   });
 });

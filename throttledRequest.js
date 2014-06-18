@@ -24,7 +24,7 @@ function getURI(path) {
   return Endpoint+path+'?access_token='+Token;
 }
 function getRequestDetails(path, method, body) {
-  if(body === 'undefined'){
+  if(body === undefined){
     return {uri:getURI(path), method:method};
   }
   return {uri:getURI(path), method:method, form:body};

@@ -16,9 +16,9 @@ var callCounter = 0;
 var callTimeStamp = 0;
 
 function Throttler(cLimit, cTimeLimit) {
-  assert(cLimit>0 && typeof cLimit === 'number' && cLimit % 1 == 0,
+  assert(cLimit>0 && typeof cLimit === 'number' && cLimit % 1 === 0,
          'Call limit needs to be a positive integer');
-  assert(cTimeLimit>0 && typeof cTimeLimit === 'number' && cTimeLimit % 1 == 0,
+  assert(cTimeLimit>0 && typeof cTimeLimit === 'number' && cTimeLimit % 1 === 0,
          'Call time limit needs to be positive integer');
   callLimit = cLimit;
   callCoolDownAfterLimit = cTimeLimit;
@@ -27,7 +27,7 @@ function Throttler(cLimit, cTimeLimit) {
 function calculateCallDelay() {
   var timeStamp = new Date().getTime();
 
-  if (callTimeStamp == 0) {
+  if (callTimeStamp === 0) {
     callTimeStamp = timeStamp;
   }
 
@@ -35,7 +35,7 @@ function calculateCallDelay() {
   var coolDownsElapsed = timeElapsed/callCoolDownAfterLimit;
   var coolDownsFromStart = Math.floor(callCounter/callLimit);
   //adding 0.01-0.1 secs to cooldown to make sure calls get triggered in right order
-  var delay = (coolDownsFromStart - coolDownsElapsed) * callCoolDownAfterLimit + (10 * (callCounter % 10));
+  var delay = Math.abs(coolDownsFromStart - coolDownsElapsed) * callCoolDownAfterLimit + (10 * (callCounter % 10));
 
   return delay;
 }
