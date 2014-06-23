@@ -63,13 +63,14 @@ describe('Throttler', function () {
         var now = new Date().getTime();
         assert((timeStamp + testCallTime * 2) < now, 'It was too quick to make ' + (testCallLimit * 3) + ' calls');
         assert((timeStamp + testCallTime * 3) > now, 'It was too slow to make ' + (testCallLimit * 3) + ' calls');
-        assert(callCounter == testCallLimit * 3);
+        assert(callCounter == testCallLimit * 3, 'Not enough calls to desired function');
         done();
       }).fail(done);
     });
 
     it('last callTime calls should not affect next callTime limits', function (done) {
-      this.timeout(3 * testCallTime);
+      var callsInThisTest = testCallLimit + 1;
+      this.timeout(4 * testCallTime);
       Th.throttle().then(genericCall);
       //call throttler when callTime has passed!
       Q.delay(testCallTime+20).then(function(){
@@ -78,9 +79,9 @@ describe('Throttler', function () {
         }
         Th.throttle().then(genericCall).then(function(){
           var now = new Date().getTime();
-          assert((timeStamp + testCallTime) < now, 'It was too quick to make ' + (testCallLimit + 1) + ' calls');
+          assert((timeStamp + testCallTime * 2) < now, 'It was too quick to make ' + (testCallLimit + 1) + ' calls');
           assert((timeStamp + testCallTime * 3) > now, 'It was too slow to make ' + (testCallLimit + 1) + ' calls');
-          assert(callCounter == testCallLimit);
+          assert(callCounter == callsInThisTest, 'Not enough calls: '+callCounter+' != '+callsInThisTest);
           done();
         }).fail(done);
       });
